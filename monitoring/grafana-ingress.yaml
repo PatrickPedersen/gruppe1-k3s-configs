@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grafana
+  namespace: monitoring
+  annotations:
+    cert-manager.io/cluster-issuer: acme-issuer
+    external-dns.alpha.kubernetes.io/hostname: grafana.gruppe1.lan
+spec:
+  ingressClassName: traefik
+  rules:
+  - host: grafana.gruppe1.lan # change me
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: grafana
+            port: 
+              name: 'http'

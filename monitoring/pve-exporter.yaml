@@ -1,0 +1,45 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pve-exporter
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: pve-exporter
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: pve-exporter
+    spec:
+      containers:
+        - name: pve-exporter
+          image: prompve/prometheus-pve-exporter
+          env:
+            - name: PVE_USER
+              value: prometheus@pve
+            - name: PVE_TOKEN_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: pve-token-name
+                  key: name
+            - name: PVE_TOKEN_VALUE
+              valueFrom:
+                secretKeyRef:
+                  name: pve-token-value
+                  key: value
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: pve-exporter
+  namespace: monitoring
+spec:
+  ports:
+    - name: pve-exporter
+      port: 9221
+      targetPort: 9221
+  selector:
+    app: pve-exporter

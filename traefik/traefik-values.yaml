@@ -1,0 +1,7 @@
+additionalArguments:
+  - '--serversTransport.insecureSkipVerify=true'
+  - '--providers.kubernetescrd.allowCrossNamespace=true' 
+service:
+  spec:
+    externalTrafficPolicy: Local
+    

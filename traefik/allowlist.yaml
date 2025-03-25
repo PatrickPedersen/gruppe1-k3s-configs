@@ -1,0 +1,11 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: internal-whitelist
+  namespace: traefik
+spec:
+  ipWhiteList:
+    sourceRange:
+      - 10.40.0.0/24 # replace with your internal network range
+    ipStrategy:
+      excludedIPs: []

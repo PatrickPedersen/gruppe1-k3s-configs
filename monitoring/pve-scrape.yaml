@@ -1,0 +1,17 @@
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: pve-config
+  namespace: monitoring
+spec:
+  jobName: pve
+  staticConfigs:
+    - targets: 
+      - 10.40.0.101:9221
+      - 10.40.0.102:9221
+      - 10.40.0.103:9221
+  metricsPath: /pve
+  params:
+    module: [default]
+    cluster: ['1']
+    node: ['1']

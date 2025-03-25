@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: traefik
+  namespace: traefik
+  annotations:
+    cert-manager.io/cluster-issuer: acme-issuer
+    external-dns.alpha.kubernetes.io/hostname: traefik.gruppe1.lan
+    traefik.ingress.kubernetes.io/router.middlewares: traefik-internal-whitelist@kubernetescrd # internal only. comment out for external access
+spec:
+  ingressClassName: traefik
+  rules:
+  - host: traefik.gruppe1.lan # change me
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: traefik
+            port:
+              number: 8000

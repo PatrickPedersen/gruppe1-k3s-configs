@@ -1,0 +1,10 @@
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: ceph-config
+  namespace: monitoring
+spec:
+  staticConfigs:
+    - labels:
+        job: prometheus
+      targets: ['10.30.0.1:9283','10.30.0.2:9283','10.30.0.3:9283']

@@ -1,0 +1,103 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: technitium
+  labels:
+    name: technitium
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: technitium
+  namespace: technitium
+spec:
+  selector:
+    matchLabels:
+      app: technitium
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: technitium
+    spec:
+      containers:
+        - name: technitium
+          image: technitium/dns-server:13.4.3
+          volumeMounts:
+            - name: technitium-volume
+              mountPath: /etc/dns
+      volumes:
+        - name: technitium-volume
+          persistentVolumeClaim:
+            claimName: technitium-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: technitium-pvc
+  namespace: technitium
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ceph-rbd
+  resources:
+    requests:
+      storage: 2Gi
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: technitium-loadbalancer
+  namespace: technitium
+  annotations:
+    metallb.universe.tf/loadBalancerIPs: 10.40.0.51
+spec:
+  ports:
+    - name: technitium-udp
+      port: 53
+      targetPort: 53
+      protocol: UDP
+    - name: technitium-tcp
+      port: 53
+      targetPort: 53
+      protocol: TCP
+  selector:
+    app: technitium
+  type: LoadBalancer
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: technitium
+  namespace: technitium
+spec:
+  ports:
+    - name: technitium-http
+      port: 5380
+      targetPort: 5380
+      protocol: TCP
+  selector:
+    app: technitium
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: technitium
+  namespace: technitium
+  annotations:
+    cert-manager.io/cluster-issuer: acme-issuer
+    traefik.ingress.kubernetes.io/router.middlewares: traefik-internal-whitelist@kubernetescrd # internal only. comment out for external access
+spec:
+  ingressClassName: traefik
+  rules:
+  - host: technitium.gruppe1.lan # change me
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: technitium
+            port:
+              number: 5380
